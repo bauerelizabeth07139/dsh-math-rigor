@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.2 — large expressions no longer hit the recursion limit
+
+### Fixed
+
+- **Expressions with a few hundred terms were rejected.** The parser recurses once
+  per nesting level and once per right-hand operand, and the AST helpers recurse
+  over the tree, so CPython's default recursion limit of 1000 put the practical
+  ceiling at roughly 300 terms or 100 levels of nesting: a 500-term sum, a
+  300-level nesting and a 2,000-term quantified claim all came back as a bare
+  `RecursionError` ("maximum recursion depth exceeded"). `rigor/__init__.py` now
+  raises the limit to 20,000 on import — pure-Python frames in CPython 3.11+ live
+  on the heap, so this costs memory rather than stack safety. Measured after the
+  change: a 6,000-term sum and 1,000 levels of nesting parse, and the 3,000-term
+  simplify that used to fail completes in under a second.
+- **The remaining failure mode is now actionable.** Anything beyond that still
+  cannot be parsed, but the server turns `RecursionError` into an
+  `ExpressionTooLarge` result that names the practical limit and suggests a
+  factored or closed form, instead of leaking the interpreter's message.
+
+### Tests
+
+- `tests/test_parse.py` parses a 1,000-term and a 3,000-term sum, a 1,000-level
+  nesting, and a 2,000-term quantified claim.
+- `tests/test_mcp_stdio.py` simplifies a 2,000-term expression over the real
+  stdio transport, handles a 300-level nesting, and asserts that an absurd
+  60,000-term expression produces the sized `ExpressionTooLarge` error rather
+  than a recursion message.
+
 ## 0.2.1 — corrected build
 
 This repository is the corrected build of the `math-rigor` plugin

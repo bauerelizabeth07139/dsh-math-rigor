@@ -10,11 +10,11 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/bauerelizabeth07139/dsh-math-rigor.svg?color=gold)]() [![GitHub forks](https://img.shields.io/github/forks/bauerelizabeth07139/dsh-math-rigor.svg)]() [![GitHub issues](https://img.shields.io/github/issues/bauerelizabeth07139/dsh-math-rigor.svg)]()
 [![GitHub release](https://img.shields.io/github/v/release/bauerelizabeth07139/dsh-math-rigor.svg?color=8A2BE2)]() [![CI status](https://img.shields.io/github/actions/workflow/status/bauerelizabeth07139/dsh-math-rigor/tests.yml.svg?branch=main)]()
-[![version](https://img.shields.io/badge/plugin-0.2.1-8A2BE2.svg)]() [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)]() [![MCP](https://img.shields.io/badge/MCP-2.x-8A2BE2.svg)]() [![tools](https://img.shields.io/badge/MCP%20tools-23-9cf.svg)]()
+[![version](https://img.shields.io/badge/plugin-0.2.2-8A2BE2.svg)]() [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)]() [![MCP](https://img.shields.io/badge/MCP-2.x-8A2BE2.svg)]() [![tools](https://img.shields.io/badge/MCP%20tools-23-9cf.svg)]()
 
 </div>
 
-> **0.2.1 修正版**:`find_counterexample` 现在遵守量词里声明的定义域(`forall n in Z: …` 不再被拿到实数上求解、也不会再拿 `n = 1/2` 当整数命题的反例);`number_theory` 现在直接接受 JSON 整数。详见 [CHANGELOG.md](CHANGELOG.md)。
+> **0.2.2**:`find_counterexample` 遵守量词里声明的定义域(0.2.1);`number_theory` 直接接受 JSON 整数(0.2.1);递归上限提高,长表达式不再在 ~300 项就报 RecursionError,超限时给出可操作的错误(0.2.2)。详见 [CHANGELOG.md](CHANGELOG.md)。
 
 
 ---

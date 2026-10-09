@@ -59,4 +59,31 @@ for src, fns in [(c, ()) for c in CASES] + DECLARED:
 
 total = len(CASES) + len(DECLARED)
 print(f"\n{total - fail}/{total} parsed")
+
+# Regression: the parser recurses per nesting level and per right-hand operand,
+# so CPython's default limit of 1000 used to reject a ~300-term polynomial and
+# a ~100-deep nesting with a bare RecursionError.  rigor/__init__.py raises the
+# limit; these sizes must parse.
+print("\n=== deep and wide expressions ===")
+BIG = [
+    ("a 1,000-term sum", " + ".join(["x"] * 1000)),
+    ("a 3,000-term sum", " + ".join(["x"] * 3000)),
+    ("a 1,000-level nesting", "(" * 1000 + "x" + ")" * 1000),
+    ("a 2,000-term sum inside a quantifier",
+     "forall n in Z: " + " + ".join(["n"] * 2000) + " = 0"),
+]
+for label, src in BIG:
+    try:
+        node = parse(src, functions=())
+        rendered = node.text()
+        ok = len(rendered) > 0
+        print(f"{'OK  ' if ok else 'FAIL'} {label}  -> {len(rendered)} chars of AST text")
+        if not ok:
+            fail += 1
+    except Exception as exc:  # noqa: BLE001
+        fail += 1
+        print(f"FAIL {label}\n  -> {type(exc).__name__}: {exc}")
+
+TOTAL = total + len(BIG)
+print(f"\n{TOTAL - fail}/{TOTAL} parsed")
 sys.exit(1 if fail else 0)

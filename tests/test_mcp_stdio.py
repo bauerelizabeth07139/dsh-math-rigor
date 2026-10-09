@@ -201,6 +201,23 @@ async def main():
             check("normalise gives latex", "latex" in norm and norm["latex"],
                   str(norm)[:160])
 
+            print("\n=== large expressions ===")
+            wide = await call(session, "symbolic_eval", {
+                "expression": " + ".join(["x"] * 2000), "operation": "simplify"})
+            check("a 2,000-term expression is simplified, not rejected",
+                  wide.get("result", {}).get("text") == "2000*x", str(wide)[:160])
+            deep = await call(session, "expr_normalise", {
+                "expression": "(" * 300 + "x" + ")" * 300, "to": "text"})
+            check("a 300-level nesting is handled", deep.get("text") == "x", str(deep)[:160])
+            too_big = await call(session, "symbolic_eval", {
+                "expression": " + ".join(["x"] * 60000), "operation": "simplify"},
+                expect_error=True)
+            check("an absurd expression reports a sized, actionable error",
+                  too_big.get("error") is True
+                  and too_big.get("exception") == "ExpressionTooLarge"
+                  and "recursion" not in json.dumps(too_big).lower(),
+                  str(too_big)[:200])
+
             print("\n=== error handling ===")
             err = await call(session, "number_theory", {"operation": "nonsense_op"}, expect_error=True)
             check("unknown operation reported cleanly", err.get("error") is True)

@@ -111,6 +111,23 @@ def _guard(function: Any, *args: Any, **kwargs: Any) -> str:
     try:
         result = function(*args, **kwargs)
         return result if isinstance(result, str) else _json(result)
+    except RecursionError:
+        # The recursive parser and the tree walkers are bounded by Python's
+        # recursion limit (raised in rigor/__init__.py).  Say what the caller can
+        # do about it instead of leaking "maximum recursion depth exceeded".
+        return _json({
+            "error": True,
+            "exception": "ExpressionTooLarge",
+            "message": (
+                "the expression is too large or too deeply nested for the recursive "
+                "parser: about 6,000 terms or 1,000 nesting levels is the practical "
+                "limit. Split the expression, or state it in a factored form."
+            ),
+            "hint": (
+                "pass a factored or closed form instead of a fully expanded one, "
+                "for example Sum(k, (k, 1, n)) rather than a 3,000-term sum"
+            ),
+        })
     except Exception as exc:  # noqa: BLE001 - the client must see a readable reason
         return _json({
             "error": True,
